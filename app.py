@@ -124,6 +124,18 @@ class Prediction(db.Model):
             return []
 
 
+class ContactMessage(db.Model):
+    __tablename__ = "contact_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
@@ -700,20 +712,46 @@ def guide():
     return render_template("guide.html", active_page="guide")
 
 
+@app.route("/contact", methods=["GET", "POST"])
+def contact():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        subject = request.form.get("subject", "").strip()
+        message = request.form.get("message", "").strip()
+
+        if not name or not email or not message:
+            flash("Please fill in all required fields (Name, Email, Message).", "danger")
+            return render_template("contact.html", active_page="contact")
+
+        msg = ContactMessage(
+            user_id=current_user.id if current_user.is_authenticated else None,
+            name=name,
+            email=email,
+            subject=subject or "Agronomic Consultation",
+            message=message
+        )
+        db.session.add(msg)
+        db.session.commit()
+        flash("Thank you! Your inquiry has been sent successfully. We will reach back to you shortly.", "success")
+        return redirect(url_for("contact"))
+
+    return render_template("contact.html", active_page="contact")
+
+
 # -----------------------------------------------------------------------------
-# Database Setup & Seed Helper
+# Database Setup Helper
 # -----------------------------------------------------------------------------
 def setup_database():
-    """Ensure database tables exist and seed demo user for instant login."""
+    """Ensure database tables exist and remove legacy demo accounts."""
     with app.app_context():
         db.create_all()
-        # Seed demo user if not present
-        if not User.query.filter_by(username="demo").first():
-            demo = User(username="demo", email="demo@mulberryai.org")
-            demo.set_password("demo1234")
-            db.session.add(demo)
+        # Remove legacy demo user for production security
+        demo_user = User.query.filter_by(username="demo").first()
+        if demo_user:
+            db.session.delete(demo_user)
             db.session.commit()
-            print("[AUTH] Seeded demo user: demo / demo1234")
+            print("[AUTH] Removed legacy demo account for production security.")
 
 
 # -----------------------------------------------------------------------------

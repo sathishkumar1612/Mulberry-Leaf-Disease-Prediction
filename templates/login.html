@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In — MulberryCare AI{% endblock %}
+{% block title %}Sign In — MORUS-LENS{% endblock %}
 
 {% block content %}
 <div class="auth-page" style="min-height: calc(100vh - 200px); padding: 1rem 0;">
   <div class="auth-card">
     <div class="auth-header">
       <div class="auth-logo">🍃</div>
-      <h1>Welcome Back</h1>
-      <p>Log in to access your mulberry disease diagnostic portal</p>
+      <h1>Welcome to MORUS-LENS</h1>
+      <p>Sign in to access your mulberry foliar pathology portal</p>
     </div>
 
     <form method="POST" action="{{ url_for('login') }}" id="login-form">
@@ -21,7 +21,7 @@
             class="form-control" 
             id="username_or_email" 
             name="username_or_email" 
-            placeholder="Enter username or email" 
+            placeholder="Enter your username or email" 
             required 
             autofocus
           >
@@ -53,12 +53,6 @@
       <button type="submit" class="btn btn-primary btn-block" id="btn-submit-login">
         <span>Sign In</span> →
       </button>
-
-      <div class="demo-credentials-box">
-        <strong>💡 Quick Demo Access:</strong><br>
-        Username: <code>demo</code> | Password: <code>demo1234</code><br>
-        <a href="javascript:void(0)" onclick="fillDemo()" style="font-weight: 700; text-decoration: underline; margin-top: 4px; display: inline-block;">Click to Auto-fill Demo Credentials</a>
-      </div>
     </form>
 
     <div class="auth-footer">
@@ -66,11 +60,4 @@
     </div>
   </div>
 </div>
-
-<script>
-  function fillDemo() {
-    document.getElementById('username_or_email').value = 'demo';
-    document.getElementById('password').value = 'demo1234';
-  }
-</script>
 {% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Contact & Developer — MORUS-LENS{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-100); color: var(--primary-800); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 700; margin-bottom: 0.75rem;">
+    <span>📬</span> Get in Touch with MORUS-LENS
+  </div>
+  <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-main);">Developer & Agricultural Support</h1>
+  <p style="color: var(--text-muted); font-size: 1rem; max-width: 680px; margin-top: 0.35rem;">
+    Have questions regarding mulberry foliar diagnosis, algorithmic models, sericulture research collaboration, or field support? Reach out directly.
+  </p>
+</div>
+
+<div class="contact-grid">
+  <!-- Left Card: Developer & Researcher Profile -->
+  <div class="card" style="border-top: 5px solid var(--primary-700);">
+    <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light);">
+      <div style="width: 72px; height: 72px; border-radius: var(--radius-lg); background: linear-gradient(135deg, #16a34a, #166534); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; box-shadow: var(--shadow-md);">
+        👨‍💻
+      </div>
+      <div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem;">Sathish Kumar</h2>
+        <p style="font-size: 0.88rem; color: var(--primary-700); font-weight: 700;">Lead Developer & AI Researcher</p>
+        <span style="font-size: 0.78rem; color: var(--text-muted);">MORUS-LENS Pathology Intelligence</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1.75rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.6rem;">About This Initiative</h3>
+      <p style="font-size: 0.88rem; color: var(--text-body); line-height: 1.55;">
+        MORUS-LENS was developed to provide sericulture cultivators and moriculture agronomists with instantaneous, accurate foliar diagnosis, preventing crop losses and protecting silkworm (<em>Bombyx mori</em>) nutrition from foliar fungal infestations.
+      </p>
+    </div>
+
+    <!-- Direct Reach-out Action Buttons -->
+    <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.75rem;">
+      <a href="mailto:sathishkumar1612@gmail.com?subject=Inquiry%20regarding%20MORUS-LENS%20Mulberry%20Diagnosis" class="btn btn-primary" style="justify-content: flex-start; padding: 0.8rem 1.25rem;">
+        <span style="font-size: 1.15rem;">✉️</span> Send Direct Email
+      </a>
+
+      <a href="https://wa.me/?text=Hello%20Sathish,%20I%20have%20an%20inquiry%20regarding%20MORUS-LENS%20Mulberry%20Disease%20Prediction" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.8rem 1.25rem; border-color: #86efac; background: #f0fdf4; color: #166534;">
+        <span style="font-size: 1.15rem;">💬</span> Connect on WhatsApp
+      </a>
+
+      <a href="https://github.com/sathishkumar1612/Mulberry-Leaf-Disease-Prediction" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.8rem 1.25rem;">
+        <span style="font-size: 1.15rem;">🐙</span> GitHub Repository
+      </a>
+    </div>
+
+    <!-- Quick Info Box -->
+    <div style="background: var(--bg-muted); border-radius: var(--radius-md); padding: 1rem; font-size: 0.82rem; color: var(--text-muted);">
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <strong style="color: var(--text-main);">📍 Location:</strong> Tamil Nadu, India
+      </div>
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <strong style="color: var(--text-main);">🔬 Field:</strong> Agronomy AI · Sericulture Diagnostics
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <strong style="color: var(--text-main);">⚡ Response Time:</strong> Within 24 Hours
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Card: Contact Form -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title"><span>✍️</span> Send an Inquiry or Message</h2>
+        <p class="card-subtitle">Your message is stored securely and directly notifies the development team</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('contact') }}" id="contact-form">
+      <div class="form-group">
+        <label class="form-label" for="name">Your Name *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="name" 
+            name="name" 
+            placeholder="e.g. Dr. Rajesh Kumar / Farmer Anbu" 
+            required
+            value="{{ current_user.username if current_user.is_authenticated else '' }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Your Email Address *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            name="email" 
+            placeholder="you@domain.com" 
+            required
+            value="{{ current_user.email if current_user.is_authenticated else '' }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="subject">Inquiry Subject *</label>
+        <div class="input-wrapper">
+          <span class="input-icon">📌</span>
+          <select class="form-control" id="subject" name="subject" required style="cursor: pointer;">
+            <option value="Foliar Disease Consultation">🌿 Foliar Disease & Field Sample Consultation</option>
+            <option value="Research & Academic Collaboration">🔬 Academic & Sericulture Research Collaboration</option>
+            <option value="Bug Report or Classification Feedback">⚙️ Diagnostic Accuracy Feedback / Bug Report</option>
+            <option value="Extension Officer Deployment">👨‍🌾 Agricultural Extension Deployment</option>
+            <option value="General Inquiry">💬 General Inquiry</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="message">Detailed Message *</label>
+        <textarea 
+          class="form-control" 
+          id="message" 
+          name="message" 
+          rows="5" 
+          placeholder="Describe your query, mulberry garden conditions, observations, or collaboration interest..." 
+          required 
+          style="padding-left: 1rem; resize: vertical;"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem;">
+        <span>🚀 Submit Inquiry to MORUS-LENS Team</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

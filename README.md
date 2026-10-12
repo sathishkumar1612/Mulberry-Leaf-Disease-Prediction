@@ -1,33 +1,34 @@
-# 🍃 MulberryCare AI — Mulberry Leaf Disease Prediction & Intelligence Portal
+# 🔬 MORUS-LENS — Mulberry Foliar Disease Intelligence & Agronomic Portal
 
-[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://tensorflow.org)
 [![Flask](https://img.shields.io/badge/Flask-Web%20App-green.svg)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57.svg)](https://www.sqlite.org/)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/sathishkumar1612/Mulberry-Leaf-Disease-Prediction)
 
-An intelligent deep-learning and clinical pathology portal engineered for sericulture farmers, agronomists, and moriculture researchers. Accurately identifies mulberry leaf diseases (*Morus alba* / *Morus indica*), prevents devastating crop failure, safeguards silkworm (*Bombyx mori*) feed nutrition, and detects out-of-distribution or ambiguous foliar afflictions.
+**MORUS-LENS** is an intelligent agronomic and computer vision platform engineered specifically for sericulture cultivators, moriculture agronomists, and pathology researchers. It delivers instantaneous, lab-grade foliar diagnosis for *Morus alba* and *Morus indica*, safeguarding silkworm (*Bombyx mori*) feed nutrition, preventing catastrophic cocoon harvest loss, and detecting out-of-distribution leaf anomalies.
 
 ---
 
 ## 📌 Table of Contents
-- [Core Features & System Upgrades](#-core-features--system-upgrades)
+- [Core Features & System Highlights](#-core-features--system-highlights)
 - [Supported Disease Classes](#-supported-disease-classes)
-- [Architecture & Performance Engineering](#-architecture--performance-engineering)
+- [Architecture & Botanical Pipeline](#-architecture--botanical-pipeline)
 - [Project Directory Structure](#-project-directory-structure)
 - [Installation & Quickstart](#-installation--quickstart)
 - [Running the Application](#-running-the-application)
-- [Retraining the Model with EfficientNetB0](#-retraining-the-model-with-efficientnetb0)
+- [Organic Botanical Field Handbook](#-organic-botanical-field-handbook)
+- [Contact & Researcher Collaboration](#-contact--researcher-collaboration)
 - [Agronomic & Sericulture Safety Guidelines](#-agronomic--sericulture-safety-guidelines)
 
 ---
 
-## 🚀 Core Features & System Upgrades
+## 🚀 Core Features & System Highlights
 
 ### 1. 🔐 User Authentication & Session Security
-- **Secure Registration & Login**: Built with `Flask-Login` and `Werkzeug` secure PBKDF2 password hashing.
-- **SQLite Database**: Self-initializing database (`users` and `predictions` tables) in `instance/mulberry_app.db`.
-- **Pre-configured Demo Account**: Instant evaluator access with username `demo` and password `demo1234`.
+- **Production Account Security**: Built with `Flask-Login` and `Werkzeug` PBKDF2:SHA256 password hashing.
+- **SQLite Database**: Self-initializing schema (`users`, `predictions`, and `contact_messages` tables) in `instance/mulberry_app.db`.
+- **Private User Data**: No pre-seeded demo accounts; each grower or researcher registers their private workspace.
 
 ### 2. 📋 Per-User Diagnostic History & Archival
 - Automatically preserves uploaded leaf imagery in user-isolated directories (`static/uploads/<user_id>/`).
@@ -156,12 +157,28 @@ python app.py
 ```
 Open your web browser and visit: **`http://127.0.0.1:5000`**
 
-- **Demo Login**: Use username `demo` and password `demo1234` (or click "Auto-fill Demo Credentials" on the login page).
-- **Register**: Or create your own personalized account to keep a private diagnostic history.
+- **Register**: Create your grower/researcher account to start diagnosing leaves and preserving records.
+- **Mobile Access**: Responsive on mobile phones and tablets; upload directly via camera shutter.
+- **Contact Team**: Access the `/contact` portal to submit inquiries or collaborate directly.
 
 ---
 
-## 🧠 Retraining the Model with EfficientNetB0
+## 📖 Organic Botanical Field Handbook
+The in-app botanical guide (`/guide`) acts as an agronomic field reference:
+- **Dichotomous Diagnostic Flowchart**: Step-by-step leaf-blade inspection logic.
+- **Herbarium Specimen Profiles**: Morphological criteria, crude protein percentages, and moisture metrics.
+- **IPM Chemical Withholding Calendar**: Exact days to withhold leaf picking after fungicide application.
+
+---
+
+## 📬 Contact & Researcher Collaboration
+Have questions regarding mulberry foliar diagnosis, algorithmic models, sericulture research collaboration, or field support? Reach out directly to the author:
+
+- **Lead Developer**: **Sathish Kumar**
+- **Repository**: [Mulberry-Leaf-Disease-Prediction](https://github.com/sathishkumar1612/Mulberry-Leaf-Disease-Prediction)
+- **Email**: [sathishkumar1612@gmail.com](mailto:sathishkumar1612@gmail.com)
+- **WhatsApp**: [Connect on WhatsApp](https://wa.me/?text=Hello%20Sathish,%20I%20have%20an%20inquiry%20regarding%20MORUS-LENS%20Mulberry%20Disease%20Prediction)
+- **Location**: Tamil Nadu, India
 
 To train the high-accuracy EfficientNetB0 model on your mulberry leaf dataset:
 
