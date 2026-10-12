@@ -174,13 +174,16 @@ The in-app botanical guide (`/guide`) acts as an agronomic field reference:
 ## 📬 Contact & Researcher Collaboration
 Have questions regarding mulberry foliar diagnosis, algorithmic models, sericulture research collaboration, or field support? Reach out directly to the author:
 
-- **Lead Developer**: **Sathish Kumar**
-- **Repository**: [Mulberry-Leaf-Disease-Prediction](https://github.com/sathishkumar1612/Mulberry-Leaf-Disease-Prediction)
-- **Email**: [sathishkumar1612@gmail.com](mailto:sathishkumar1612@gmail.com)
-- **WhatsApp**: [Connect on WhatsApp](https://wa.me/?text=Hello%20Sathish,%20I%20have%20an%20inquiry%20regarding%20MORUS-LENS%20Mulberry%20Disease%20Prediction)
-- **Location**: Tamil Nadu, India
+- **Lead Developer**: **Sathish Kumar** (Data Scientist & AI Researcher)
+- **Email**: [sathishkumar.ds2027@gmail.com](mailto:sathishkumar.ds2027@gmail.com)
+- **WhatsApp**: [+91 86105 25967](https://wa.me/918610525967?text=Hello%20Sathish,%20I%20have%20an%20inquiry%20regarding%20MORUS-LENS%20Mulberry%20Disease%20Prediction)
+- **LinkedIn**: [Sathish Kumar | Data Scientist](https://www.linkedin.com/in/sathish-kumar-datascientist/)
+- **GitHub**: [@sathishkumar1612](https://github.com/sathishkumar1612/Mulberry-Leaf-Disease-Prediction)
+- **Location**: Tirupattur, Tamil Nadu, India
 
-To train the high-accuracy EfficientNetB0 model on your mulberry leaf dataset:
+---
+
+## 🧠 Retraining the Model with EfficientNetB0
 
 ```bash
 python train_advanced_model.py \
