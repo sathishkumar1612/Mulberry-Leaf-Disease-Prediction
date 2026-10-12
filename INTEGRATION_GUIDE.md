@@ -62,14 +62,61 @@ python train_advanced_model.py \
 
 ---
 
-## Production Deployment Checklist
-1. **WSGI Server**: Use `gunicorn` or `waitress`:
-   ```bash
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
-   ```
-2. **Secret Key**: Set `SECRET_KEY` environment variable in production.
-3. **Database**: SQLite is configured by default; set `DATABASE_URL` if connecting to PostgreSQL / MySQL.
+## Production Deployment Options
+
+### Option A — Deploy with Docker (Recommended)
+Docker ensures the exact same dependencies (Python 3.11, OpenCV libraries, and Keras) run without compatibility bugs anywhere in the cloud or local servers.
+
+```bash
+# 1. Build the Docker container
+docker build -t morus-lens .
+
+# 2. Run the container with persistent volumes
+docker run -d \
+  -p 5000:5000 \
+  -v $(pwd)/instance:/app/instance \
+  -v $(pwd)/static/uploads:/app/static/uploads \
+  --name morus_lens_app \
+  morus-lens
+```
+
+#### Or with Docker Compose (One Single Command):
+```bash
+docker compose up -d
+```
+- Your application will be live at: **`http://localhost:5000`**
+- Farm databases (`instance/`) and uploaded leaf scans (`static/uploads/`) remain persistent even when the container restarts.
 
 ---
 
-*Built with Flask + Flask-Login + SQLite + TensorFlow/Keras · EfficientNetB0 & CNN Transfer Learning*
+### Option B — Deploy to Free / Low-Cost Cloud (Render / Railway)
+
+1. **Render.com**:
+   - Push your code to GitHub.
+   - In Render, click **New + Web Service** and link your `Mulberry-Leaf-Disease-Prediction` repository.
+   - Choose **Docker** as the runtime (Render will automatically detect your `Dockerfile`).
+   - Add a persistent disk mounted at `/app/instance` and `/app/static/uploads`.
+   - Click **Deploy**! Render provides a free `https://morus-lens.onrender.com` SSL domain.
+
+2. **Railway.app**:
+   - Click **New Project** -> **Deploy from GitHub repo**.
+   - Railway automatically detects the `Dockerfile` and builds the container.
+   - In the settings, add a volume mounted at `/app/instance`.
+
+---
+
+### Option C — Traditional Linux VPS (Ubuntu + Gunicorn + Nginx)
+
+1. **Install system dependencies**:
+   ```bash
+   sudo apt update && sudo apt install -y python3-venv python3-pip nginx libgl1 libglib2.0-0
+   ```
+2. **Run with Gunicorn WSGI**:
+   ```bash
+   gunicorn --workers 3 --bind 127.0.0.1:5000 --timeout 120 app:app
+   ```
+3. **Configure Nginx as reverse proxy** to forward port 80/443 to `127.0.0.1:5000`.
+
+---
+
+*MORUS-LENS · Built with Flask + SQLite + OpenCV + EfficientNetB0 · Engineered by Sathish Kumar*

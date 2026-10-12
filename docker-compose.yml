@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  morus-lens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: morus-lens:latest
+    container_name: morus_lens_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=morus-lens-sericulture-production-key-2026
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Persistent storage for SQLite database and uploaded leaf images
+      - ./instance:/app/instance
+      - ./static/uploads:/app/static/uploads

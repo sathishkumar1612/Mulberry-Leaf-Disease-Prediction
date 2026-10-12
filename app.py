@@ -573,12 +573,6 @@ def dashboard():
     return render_template("dashboard.html", active_page="dashboard", stats=stats)
 
 
-@app.route("/legacy")
-def legacy_view():
-    """Optional legacy single-page interface."""
-    return render_template("index.html")
-
-
 @app.route("/predict", methods=["POST"])
 @login_required
 def predict():

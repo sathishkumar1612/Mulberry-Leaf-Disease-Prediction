@@ -1,0 +1,19 @@
+# Git & IDE configs
+.git
+.gitignore
+.idea
+.vscode
+
+# Python virtual environment & cache
+myenv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary test files & PDFs
+scratch/
+test.pdf
+*.log
