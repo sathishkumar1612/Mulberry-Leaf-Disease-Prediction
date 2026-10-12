@@ -1,131 +1,74 @@
-# 🍃 Mulberry Leaf Disease Detector — Integration Guide
+# 🍃 Mulberry Leaf Disease Detector — Integration & Deployment Guide
 
-## What You Have
-| File | Purpose |
-|------|---------|
-| `app.py` | Flask backend — loads your model and handles predictions |
-| `templates/index.html` | Beautiful web UI |
-| `requirements.txt` | Python packages to install |
-
----
-
-## Step-by-Step Setup (No Experience Needed)
-
-### STEP 1 — Organize Your Project Folder
-
-Create a folder called `mulberry_app` on your computer. Inside it, place these files:
-
-```
-mulberry_app/
-├── app.py
-├── requirements.txt
-├── mulberry_leaf_disease_Identification.keras   ← YOUR MODEL FILE
-└── templates/
-    └── index.html
-```
-
-> ⚠️ The `.keras` model file must be **directly inside** `mulberry_app/` — same level as `app.py`
+## System Components
+| File / Directory | Purpose |
+|------------------|---------|
+| `app.py` | Production Flask backend with Authentication, History, and Inference |
+| `templates/` | Clean light professional dashboard templates (`dashboard.html`, `login.html`, `register.html`, `history.html`, `guide.html`, `base.html`) |
+| `static/css/style.css` | Light medical/agricultural design system |
+| `train_advanced_model.py` | EfficientNetB0 two-phase transfer learning pipeline |
+| `instance/mulberry_app.db` | Auto-created SQLite database for users and predictions |
+| `requirements.txt` | Production dependencies |
+| `mulberry_leaf_disease_Identification.keras` | Pre-trained model file |
 
 ---
 
-### STEP 2 — Install Python Packages
+## Step-by-Step Setup
 
-Open **Anaconda Prompt** (or any terminal) and run:
-
+### STEP 1 — Virtual Environment & Dependencies
 ```bash
-pip install flask tensorflow pillow numpy
-```
+python -m venv myenv
+# Activate on Windows:
+myenv\Scripts\activate
 
-Wait for it to finish (may take 2–3 minutes).
+# Install requirements:
+pip install -r requirements.txt
+```
 
 ---
 
-### STEP 3 — Run the App
-
-In your terminal, navigate to your project folder:
-
-```bash
-cd path\to\mulberry_app
-```
-
-Example (adjust to your path):
-```bash
-cd C:\Users\SATHISH\Desktop\mulberry_app
-```
-
-Then start the server:
-
+### STEP 2 — Start the Server
 ```bash
 python app.py
 ```
-
-You should see output like:
-```
-✅ Model loaded successfully!
+You should see:
+```text
+[OK] Loaded Keras Model: mulberry_leaf_disease_Identification.keras (Input shape: (128, 128))
  * Running on http://127.0.0.1:5000
 ```
 
 ---
 
-### STEP 4 — Open in Browser
-
-Open your browser and go to:
-
+### STEP 3 — Access the Web Application
+Open your browser and navigate to:
 ```
 http://127.0.0.1:5000
 ```
-
-You'll see the leaf disease detector web page! 🎉
-
----
-
-### STEP 5 — How to Use
-
-1. Click **"Choose Image"** or drag & drop a mulberry leaf photo
-2. Click **"🔬 Analyze Leaf"**
-3. See the **diagnosis**, **confidence %**, and **recommendations**
+- **Login**: Use the seeded demo credentials (`demo` / `demo1234`) or register a new account.
+- **Analyze**: Upload a leaf image on the dashboard to see immediate diagnostic results and sericulture protocols.
+- **History**: Review past scans and track pathological developments over time.
 
 ---
 
-## What the App Does
-
-| Feature | Detail |
-|---------|--------|
-| Image input size | Resized to 128×128 (matches your training) |
-| Normalization | Divided by 255.0 (matches your rescale=1./255) |
-| Classes | Disease Free · Potential Leaf Rust · Potential Leaf Spot |
-| Output | Predicted class + confidence % for all 3 classes |
-| Recommendations | Specific treatment advice per disease |
-
----
-
-## Troubleshooting
-
-| Problem | Solution |
-|---------|---------|
-| `Model not found` error | Make sure `.keras` file is in the same folder as `app.py` |
-| `pip not found` | Use Anaconda Prompt, not regular CMD |
-| Port already in use | Change `port=5000` to `port=5001` in `app.py` |
-| TensorFlow version mismatch | Run `pip install tensorflow==2.20.0` |
-| Page not loading | Make sure `python app.py` is still running in the terminal |
-
----
-
-## To Stop the Server
-
-Press `Ctrl + C` in the terminal.
-
----
-
-## Optional: Share With Others on Your Network
-
-Change the last line of `app.py` to:
-```python
-app.run(debug=True, host='0.0.0.0', port=5000)
+## Retraining With EfficientNetB0
+To train on custom datasets with heavy data augmentation and balanced class weights:
+```bash
+python train_advanced_model.py \
+  --train_dir path/to/dataset/train \
+  --val_dir path/to/dataset/val \
+  --output mulberry_leaf_disease_Identification_v2.keras
 ```
 
-Then others on the same WiFi can access it at `http://<your-ip>:5000`
+---
+
+## Production Deployment Checklist
+1. **WSGI Server**: Use `gunicorn` or `waitress`:
+   ```bash
+   gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   ```
+2. **Secret Key**: Set `SECRET_KEY` environment variable in production.
+3. **Database**: SQLite is configured by default; set `DATABASE_URL` if connecting to PostgreSQL / MySQL.
 
 ---
 
-*Built with Flask + TensorFlow/Keras · CNN Model · 3-Class Leaf Disease Classification*
+*Built with Flask + Flask-Login + SQLite + TensorFlow/Keras · EfficientNetB0 & CNN Transfer Learning*

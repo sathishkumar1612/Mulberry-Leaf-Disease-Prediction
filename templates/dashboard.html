@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — MulberryCare AI Diagnostic Portal{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero -->
+<section class="dashboard-hero">
+  <div class="hero-text">
+    <h1>Mulberry Crop Health Monitor</h1>
+    <p>Upload foliage imagery to detect leaf rust, leaf spot, or novel pathogens with deep learning and sericulture-safe agronomic guidance.</p>
+    <div class="hero-badges">
+      <span class="badge-pill primary">⚡ 4-Class Diagnostic Engine</span>
+      <span class="badge-pill">🛡️ Out-of-Distribution Rejection Gate</span>
+      <span class="badge-pill">🐛 Sericulture Safety Advisories</span>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Grid -->
+<section class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon total">📊</div>
+    <div class="stat-content">
+      <span class="stat-num" id="stat-total">{{ stats.total }}</span>
+      <span class="stat-label">Total Scans</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon healthy">🌿</div>
+    <div class="stat-content">
+      <span class="stat-num" id="stat-healthy">{{ stats.healthy }}</span>
+      <span class="stat-label">Disease Free</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon rust">⚠️</div>
+    <div class="stat-content">
+      <span class="stat-num" id="stat-rust">{{ stats.rust }}</span>
+      <span class="stat-label">Leaf Rust</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon spot">🚨</div>
+    <div class="stat-content">
+      <span class="stat-num" id="stat-spot">{{ stats.spot }}</span>
+      <span class="stat-label">Leaf Spot</span>
+    </div>
+  </div>
+</section>
+
+<!-- Dashboard Main Workspace -->
+<div class="dashboard-grid">
+  <!-- Left Column: Upload & Controls -->
+  <div class="upload-card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title"><span>🍃</span> Leaf Image Scanner</h2>
+        <p class="card-subtitle">Take a photo or upload an image of a single mulberry leaf</p>
+      </div>
+    </div>
+
+    <!-- Drag & Drop Zone -->
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-zone-icon">📷</div>
+      <h3 class="drop-zone-title">Drag & drop leaf photo here</h3>
+      <p class="drop-zone-desc">Supports JPG, PNG, WEBP up to 16MB</p>
+      <div class="drop-actions">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+          <span>📁</span> Browse Image
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('camera-input').click()">
+          <span>📸</span> Capture Photo
+        </button>
+      </div>
+      <input type="file" id="file-input" class="file-input-hidden" accept="image/jpeg,image/png,image/webp">
+      <input type="file" id="camera-input" class="file-input-hidden" accept="image/*" capture="environment">
+    </div>
+
+    <!-- Image Preview Area -->
+    <div class="preview-card" id="preview-card">
+      <div class="preview-inner">
+        <img id="preview-img" class="preview-thumb" src="#" alt="Selected leaf preview">
+        <div class="preview-info">
+          <div class="preview-name" id="preview-name">leaf_sample.jpg</div>
+          <div class="preview-meta" id="preview-size">1.2 MB · Ready for analysis</div>
+          <button type="button" class="btn-remove-preview" id="btn-remove-file">
+            <span>✕</span> Remove photo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Action Button -->
+    <div style="margin-top: 1.5rem;">
+      <button type="button" class="btn btn-primary btn-block" id="btn-analyze" disabled>
+        <span id="analyze-btn-text">🔬 Run AI Diagnostic Analysis</span>
+      </button>
+    </div>
+
+    <!-- Best Practice Tips -->
+    <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-muted); border-radius: var(--radius-md); font-size: 0.83rem; color: var(--text-muted);">
+      <strong style="color: var(--text-main);">💡 Photographic Guidance:</strong>
+      <ul style="padding-left: 1.2rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.25rem;">
+        <li>Place the leaf flat against a neutral background (white paper or wood).</li>
+        <li>Avoid harsh shadows or blurry motion artifacts.</li>
+        <li>Keep the whole leaf blade visible within the frame.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right Column: Diagnostic Results Panel -->
+  <div>
+    <!-- Placeholder before analysis -->
+    <div class="card" id="result-placeholder" style="text-align: center; padding: 3.5rem 2rem;">
+      <div style="font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.6;">🌿</div>
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Awaiting Leaf Image</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 360px; margin: 0 auto;">
+        Upload a mulberry leaf image on the left and click "Run AI Diagnostic Analysis" to inspect pathology.
+      </p>
+    </div>
+
+    <!-- Active Results Card -->
+    <div class="results-card" id="results-panel">
+      <div class="diagnosis-header">
+        <div class="diagnosis-icon-wrap" id="res-icon-wrap">🌿</div>
+        <div class="diagnosis-title-group">
+          <span class="diagnosis-tag">Primary Diagnosis</span>
+          <h2 class="diagnosis-name" id="res-class-name">Disease Free</h2>
+        </div>
+        <div class="confidence-metric-box">
+          <div class="metric-val" id="res-conf-val">96.4%</div>
+          <div class="metric-lbl">Confidence</div>
+        </div>
+      </div>
+
+      <!-- Confidence Breakdown Progress Bars -->
+      <h4 class="section-subtitle">
+        <span>📊</span> Class Probability Distribution
+      </h4>
+      <div class="confidence-list" id="res-bars-container">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Actionable Treatment Protocols -->
+      <h4 class="section-subtitle">
+        <span>🌱</span> Sericulture Treatment & Agronomic Protocols
+      </h4>
+      <div class="recommendations-box">
+        <ul class="recommendations-list" id="res-recs-list">
+          <!-- Injected via JavaScript -->
+        </ul>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="result-footer-actions">
+        <a href="{{ url_for('history') }}" class="btn btn-secondary" style="font-size: 0.88rem; padding: 0.55rem 1rem;">
+          <span>📋</span> View in History
+        </a>
+        <button type="button" class="btn btn-secondary" onclick="window.print()" style="font-size: 0.88rem; padding: 0.55rem 1rem;">
+          <span>🖨️</span> Print Diagnosis Report
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let currentFile = null;
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const cameraInput = document.getElementById('camera-input');
+  const previewCard = document.getElementById('preview-card');
+  const previewImg = document.getElementById('preview-img');
+  const previewName = document.getElementById('preview-name');
+  const previewSize = document.getElementById('preview-size');
+  const btnRemoveFile = document.getElementById('btn-remove-file');
+  const btnAnalyze = document.getElementById('btn-analyze');
+  const analyzeBtnText = document.getElementById('analyze-btn-text');
+
+  const resultPlaceholder = document.getElementById('result-placeholder');
+  const resultsPanel = document.getElementById('results-panel');
+  const resIconWrap = document.getElementById('res-icon-wrap');
+  const resClassName = document.getElementById('res-class-name');
+  const resConfVal = document.getElementById('res-conf-val');
+  const resBarsContainer = document.getElementById('res-bars-container');
+  const resRecsList = document.getElementById('res-recs-list');
+
+  // Drag and drop handlers
+  ['dragenter', 'dragover'].forEach(evt => {
+    dropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(evt => {
+    dropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+    });
+  });
+
+  dropZone.addEventListener('drop', e => {
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileSelected(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileSelected(e.target.files[0]);
+    }
+  });
+
+  cameraInput.addEventListener('change', e => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileSelected(e.target.files[0]);
+    }
+  });
+
+  function handleFileSelected(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file (JPG, PNG, WEBP).');
+      return;
+    }
+    currentFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      previewName.textContent = file.name;
+      previewSize.textContent = `${(file.size / 1024).toFixed(1)} KB · Ready to classify`;
+      previewCard.style.display = 'block';
+      btnAnalyze.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  btnRemoveFile.addEventListener('click', () => {
+    currentFile = null;
+    fileInput.value = '';
+    cameraInput.value = '';
+    previewCard.style.display = 'none';
+    btnAnalyze.disabled = true;
+  });
+
+  btnAnalyze.addEventListener('click', async () => {
+    if (!currentFile) return;
+
+    btnAnalyze.disabled = true;
+    analyzeBtnText.innerHTML = '<span class="spinner"></span> Analyzing Folio Pathologies...';
+
+    const formData = new FormData();
+    formData.append('image', currentFile);
+
+    try {
+      const response = await fetch('{{ url_for("predict") }}', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        alert(data.error || 'Failed to complete diagnosis.');
+        return;
+      }
+
+      displayResults(data);
+
+      // Increment stats dynamically
+      const totalEl = document.getElementById('stat-total');
+      if (totalEl) totalEl.textContent = parseInt(totalEl.textContent || 0) + 1;
+
+      if (data.severity === 'healthy') {
+        const hEl = document.getElementById('stat-healthy');
+        if (hEl) hEl.textContent = parseInt(hEl.textContent || 0) + 1;
+      } else if (data.severity === 'warning') {
+        const rEl = document.getElementById('stat-rust');
+        if (rEl) rEl.textContent = parseInt(rEl.textContent || 0) + 1;
+      } else if (data.severity === 'danger') {
+        const sEl = document.getElementById('stat-spot');
+        if (sEl) sEl.textContent = parseInt(sEl.textContent || 0) + 1;
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert('Connection error. Please try again.');
+    } finally {
+      btnAnalyze.disabled = false;
+      analyzeBtnText.innerHTML = '🔬 Run AI Diagnostic Analysis';
+    }
+  });
+
+  function displayResults(data) {
+    resultPlaceholder.style.display = 'none';
+    resultsPanel.style.display = 'block';
+
+    // Status Styling
+    const sev = data.severity || 'unknown';
+    resIconWrap.className = `diagnosis-icon-wrap ${sev}`;
+    resClassName.className = `diagnosis-name ${sev}`;
+    resClassName.textContent = data.predicted_class;
+    resConfVal.textContent = `${data.confidence.toFixed(1)}%`;
+
+    const iconMap = {
+      'healthy': '🌿',
+      'warning': '⚠️',
+      'danger': '🚨',
+      'unknown': '❓'
+    };
+    resIconWrap.textContent = iconMap[sev] || '🌿';
+
+    // Breakdown Bars
+    resBarsContainer.innerHTML = '';
+    const classColorMap = {
+      'Disease Free': 'healthy',
+      'Potential Leaf Rust': 'rust',
+      'Potential Leaf Spot': 'spot',
+      'Unknown / Unidentified Disease': 'unknown'
+    };
+
+    for (const [clsName, prob] of Object.entries(data.all_confidences)) {
+      const barColor = classColorMap[clsName] || 'healthy';
+      const item = document.createElement('div');
+      item.className = 'confidence-item';
+      item.innerHTML = `
+        <div class="item-header">
+          <span>${clsName}</span>
+          <span>${prob.toFixed(1)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${barColor}" style="width: 0%;"></div>
+        </div>
+      `;
+      resBarsContainer.appendChild(item);
+
+      // Trigger animation
+      setTimeout(() => {
+        const fill = item.querySelector('.bar-fill');
+        if (fill) fill.style.width = `${Math.min(100, Math.max(0, prob))}%`;
+      }, 50);
+    }
+
+    // Recommendations List
+    resRecsList.innerHTML = '';
+    (data.recommendations || []).forEach(rec => {
+      const li = document.createElement('li');
+      li.className = 'rec-item';
+      li.innerHTML = `
+        <span class="rec-item-bullet">›</span>
+        <span>${rec}</span>
+      `;
+      resRecsList.appendChild(li);
+    });
+
+    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+{% endblock %}

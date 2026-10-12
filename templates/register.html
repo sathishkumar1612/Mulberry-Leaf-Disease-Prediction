@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — MulberryCare AI{% endblock %}
+
+{% block content %}
+<div class="auth-page" style="min-height: calc(100vh - 200px); padding: 1rem 0;">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">🍃</div>
+      <h1>Create Account</h1>
+      <p>Register to save diagnostic scans and track mulberry crop health</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}" id="register-form" onsubmit="return validateRegister()">
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="username" 
+            name="username" 
+            placeholder="Choose a username" 
+            minlength="3" 
+            required 
+            autofocus
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            name="email" 
+            placeholder="you@domain.com" 
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
+            placeholder="Minimum 6 characters" 
+            minlength="6" 
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirm_password">Confirm Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔑</span>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="confirm_password" 
+            name="confirm_password" 
+            placeholder="Re-enter password" 
+            minlength="6" 
+            required
+          >
+        </div>
+      </div>
+
+      <p id="password-error" style="color: var(--danger-solid); font-size: 0.82rem; margin-bottom: 1rem; display: none;"></p>
+
+      <button type="submit" class="btn btn-primary btn-block" id="btn-submit-register">
+        <span>Complete Registration</span> →
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Already registered? <a href="{{ url_for('login') }}" style="font-weight: 600;">Sign in here</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function validateRegister() {
+    const p1 = document.getElementById('password').value;
+    const p2 = document.getElementById('confirm_password').value;
+    const err = document.getElementById('password-error');
+    if (p1 !== p2) {
+      err.textContent = 'Passwords do not match. Please verify.';
+      err.style.display = 'block';
+      return false;
+    }
+    err.style.display = 'none';
+    return true;
+  }
+</script>
+{% endblock %}

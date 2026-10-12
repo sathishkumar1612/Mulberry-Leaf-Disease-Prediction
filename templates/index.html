@@ -16,6 +16,7 @@
       --green-soft: #16a34a;
       --yellow: #facc15;
       --red: #f87171;
+      --purple: #c084fc;
       --text: #e8f5e9;
       --text-muted: #6b9e7a;
       --accent: #a7f3d0;
@@ -300,6 +301,7 @@
     .result-icon-wrap.healthy { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); }
     .result-icon-wrap.warning { background: rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.3); }
     .result-icon-wrap.danger  { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); }
+    .result-icon-wrap.unknown { background: rgba(192,132,252,0.15); border: 1px solid rgba(192,132,252,0.3); }
 
     .result-label { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
 
@@ -313,6 +315,7 @@
     .result-class.healthy { color: var(--green); }
     .result-class.warning { color: var(--yellow); }
     .result-class.danger  { color: var(--red); }
+    .result-class.unknown { color: var(--purple); }
 
     .confidence-pill {
       display: inline-block;
@@ -325,6 +328,7 @@
     .confidence-pill.healthy { background: rgba(74,222,128,0.15); color: var(--green); }
     .confidence-pill.warning { background: rgba(250,204,21,0.15); color: var(--yellow); }
     .confidence-pill.danger  { background: rgba(248,113,113,0.15); color: var(--red); }
+    .confidence-pill.unknown { background: rgba(192,132,252,0.15); color: var(--purple); }
 
     /* Confidence bars */
     .confidence-title {
@@ -366,6 +370,7 @@
     .bar-fill.c0 { background: var(--green); }
     .bar-fill.c1 { background: var(--yellow); }
     .bar-fill.c2 { background: var(--red); }
+    .bar-fill.c3 { background: var(--purple); }
 
     /* Recommendations */
     .rec-title {
@@ -420,7 +425,7 @@
       <span class="leaf-icon">🍃</span>
       <h1>Mulberry Leaf<br>Disease Detector</h1>
       <p>Upload a mulberry leaf image to classify its health status using deep learning</p>
-      <span class="badge">CNN · 3 Classes · Keras Model</span>
+      <span class="badge">CNN · 4 Classes · Out-of-Distribution Rejection</span>
     </header>
 
     <!-- Upload Card -->
@@ -498,11 +503,12 @@
 
     let selectedFile = null;
 
-    const COLORS = ['c0','c1','c2'];
+    const COLORS = ['c0','c1','c2','c3'];
     const CLASS_ICONS = {
       'healthy': '🌿',
       'warning': '⚠️',
-      'danger':  '🚨'
+      'danger':  '🚨',
+      'unknown': '❓'
     };
 
     // Drag & drop

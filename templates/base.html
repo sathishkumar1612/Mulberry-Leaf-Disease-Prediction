@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mulberry Leaf Disease Intelligence{% endblock %}</title>
+  <meta name="description" content="AI-powered sericulture platform for Mulberry leaf disease prediction, identification, and pathogen management.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}" class="brand">
+        <div class="brand-icon">🍃</div>
+        <div class="brand-title">
+          <span>MulberryCare AI</span>
+          <span>Sericulture Crop Diagnostics</span>
+        </div>
+      </a>
+
+      {% if current_user.is_authenticated %}
+      <nav>
+        <ul class="nav-links">
+          <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            <a href="{{ url_for('dashboard') }}" id="nav-dashboard">
+              <span>🔬</span> Dashboard
+            </a>
+          </li>
+          <li class="nav-item {% if active_page == 'history' %}active{% endif %}">
+            <a href="{{ url_for('history') }}" id="nav-history">
+              <span>📋</span> History
+            </a>
+          </li>
+          <li class="nav-item {% if active_page == 'guide' %}active{% endif %}">
+            <a href="{{ url_for('guide') }}" id="nav-guide">
+              <span>📖</span> Disease Guide
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="nav-user">
+        <div class="user-badge" title="Logged in as {{ current_user.username }}">
+          <div class="user-avatar-circle">{{ current_user.username[0]|upper }}</div>
+          <span>{{ current_user.username }}</span>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn-logout" id="btn-logout" title="Sign out">
+          <span>🚪</span> Sign Out
+        </a>
+      </div>
+      {% else %}
+      <div class="nav-user">
+        <a href="{{ url_for('login') }}" class="btn btn-secondary" style="padding: 0.45rem 1rem;">Sign In</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.45rem 1rem;">Register</a>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-alert {{ category }}">
+              <span>{{ message }}</span>
+              <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>🌿 MulberryCare AI · Sericulture Pathology Intelligence & Deep Learning Diagnostics · Morus Alba Crop Health</p>
+  </footer>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

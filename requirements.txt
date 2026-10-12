@@ -1,5 +1,9 @@
 flask
+flask-sqlalchemy
+flask-login
 tensorflow-cpu
 pillow
 numpy
 gunicorn
+streamlit
+scikit-learn

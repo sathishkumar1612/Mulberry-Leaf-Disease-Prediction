@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Sericulture Disease & Agronomy Guide — MulberryCare AI{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+  <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);">Sericulture Foliar Disease Guide</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.2rem;">
+    Clinical identification, biological cycles, chemical treatments, and safe harvesting intervals for *Morus alba*.
+  </p>
+</div>
+
+<!-- Disease Comparison Cards -->
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+
+  <!-- Disease 1: Healthy -->
+  <div class="card" style="border-left: 5px solid var(--healthy-solid);">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="color: var(--healthy-text);"><span>🌿</span> Healthy Mulberry Foliage (Disease Free)</h2>
+        <p class="card-subtitle">Normal morphology of nutritious silkworm feed (*Morus alba / Morus indica*)</p>
+      </div>
+      <span class="badge-pill" style="background: var(--healthy-bg); color: var(--healthy-text); border-color: var(--healthy-border);">Safe for Feeding</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+      <div>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Key Visual Characteristics:</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-body); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+          <li>Uniform deep green leaf blade without chlorotic (yellow) halos or discoloration.</li>
+          <li>Intact venation network without brown pustules or fungal mycelium.</li>
+          <li>Smooth, succulent texture optimal for silkworm (*Bombyx mori*) instar consumption.</li>
+        </ul>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Maintenance Routine:</h4>
+        <p style="font-size: 0.9rem; color: var(--text-body);">
+          Apply balanced NPK fertilizer (300:120:120 kg/ha/yr for irrigated gardens) split across cropping cycles. Maintain proper inter-row weed clearance and mulch to preserve soil microbial vitality.
+        </p>
+      </div>
+      <div style="background: var(--bg-muted); padding: 1.25rem; border-radius: var(--radius-md); font-size: 0.85rem;">
+        <strong style="color: var(--text-main);">Sericulture Feed Value:</strong>
+        <p style="margin-top: 0.35rem; color: var(--text-muted);">
+          High moisture content (70–75%), rich in crude protein (20–24%), providing complete nutritional foundation for high shell ratio cocoon production.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disease 2: Leaf Rust -->
+  <div class="card" style="border-left: 5px solid var(--warning-solid);">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="color: var(--warning-text);"><span>⚠️</span> Mulberry Leaf Rust (*Cerotelium fici*)</h2>
+        <p class="card-subtitle">Fungal foliar pathogen prevalent during humid post-monsoon periods (Sep – Jan)</p>
+      </div>
+      <span class="badge-pill" style="background: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border);">Fungicide Required</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+      <div>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Visual Symptoms:</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-body); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+          <li>Starts on the lower surface of mature leaves as tiny, pinpoint yellowish-brown spots.</li>
+          <li>Rapidly erupts into raised, circular, reddish-brown to orange powdery pustules (uredinia).</li>
+          <li>Severely affected leaves dry up, curl inward, turn leathery, and defoliate prematurely.</li>
+        </ul>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Agronomic & Chemical Management:</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-body); display: flex; flex-direction: column; gap: 0.35rem;">
+          <li><strong>Sanitation:</strong> Clip and burn infected leaves early before spores spread via air currents.</li>
+          <li><strong>Canopy Pruning:</strong> Thin dense branches to improve airflow and direct sunlight inside the canopy.</li>
+          <li><strong>Chemical Spray:</strong> Spray Mancozeb (Dithane M-45) 0.2% (2g/L water) or Copper Oxychloride 0.2% on both leaf surfaces.</li>
+        </ul>
+      </div>
+      <div style="background: var(--warning-bg); border: 1px solid var(--warning-border); padding: 1.25rem; border-radius: var(--radius-md); font-size: 0.85rem;">
+        <strong style="color: var(--warning-text);">🐛 Silkworm Safety Warning:</strong>
+        <p style="margin-top: 0.35rem; color: var(--warning-text); line-height: 1.45;">
+          <strong>Safe Waiting Period: 10 to 14 days!</strong> Never feed freshly sprayed leaves to silkworms. Chemical residue causes flacherie and worm mortality.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disease 3: Leaf Spot -->
+  <div class="card" style="border-left: 5px solid var(--danger-solid);">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="color: var(--danger-text);"><span>🚨</span> Mulberry Leaf Spot (*Pseudocercospora mori / Phloeospora*)</h2>
+        <p class="card-subtitle">Destructive necrotic pathogen flourishing under high humidity and warm temperatures</p>
+      </div>
+      <span class="badge-pill" style="background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border);">High Severity</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+      <div>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Visual Symptoms:</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-body); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+          <li>Circular to irregular dark brown, black, or reddish-brown necrotic spots across leaf blade.</li>
+          <li>Spots enlarge, coalesce into large dead patches, often bordered by a distinct chlorotic halo.</li>
+          <li>Dead tissue within old lesions frequently drops out, creating a "shot-hole" appearance.</li>
+        </ul>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-main);">Agronomic & Chemical Management:</h4>
+        <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-body); display: flex; flex-direction: column; gap: 0.35rem;">
+          <li><strong>Debris Cleanup:</strong> Gather and incinerate all fallen diseased foliage to break the spore inoculum cycle.</li>
+          <li><strong>Irrigation Practice:</strong> Avoid overhead sprinklers; water at soil level to prevent water splashes spreading fungal conidia.</li>
+          <li><strong>Fungicide Application:</strong> Spray Bavistin (Carbendazim 50% WP) 0.1% (1g/L water) or Chlorothalonil 0.2%.</li>
+        </ul>
+      </div>
+      <div style="background: var(--danger-bg); border: 1px solid var(--danger-border); padding: 1.25rem; border-radius: var(--radius-md); font-size: 0.85rem;">
+        <strong style="color: var(--danger-text);">🐛 Silkworm Safety Warning:</strong>
+        <p style="margin-top: 0.35rem; color: var(--danger-text); line-height: 1.45;">
+          <strong>Safe Waiting Period: 10 to 12 days</strong> after Bavistin spray. Thoroughly wash harvested leaves in clean water and dry in shade before rearing feed.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disease 4: Unknown / Ambiguous Pathogens -->
+  <div class="card" style="border-left: 5px solid var(--unknown-solid);">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="color: var(--unknown-text);"><span>❓</span> Unknown / Unidentified Condition (OOD)</h2>
+        <p class="card-subtitle">Out-of-distribution patterns, novel viruses, bacterial blights, or physiological stress</p>
+      </div>
+      <span class="badge-pill" style="background: var(--unknown-bg); color: var(--unknown-text); border-color: var(--unknown-border);">Expert Inspection</span>
+    </div>
+    <div>
+      <p style="font-size: 0.9rem; color: var(--text-body); line-height: 1.5; margin-bottom: 1rem;">
+        When the AI diagnostic engine detects low confidence (< 70%) or overlapping symptoms, the sample is safely flagged as <strong>Unknown / Unidentified Disease</strong> rather than forcing a hazardous misclassification.
+      </p>
+      <div style="background: var(--bg-muted); padding: 1rem 1.25rem; border-radius: var(--radius-md); font-size: 0.88rem;">
+        <strong>Recommended Investigative Actions:</strong>
+        <ol style="padding-left: 1.25rem; margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.25rem;">
+          <li>Rule out <em>Mulberry Mosaic Virus</em> (yellow mosaic mottling and leaf puckering).</li>
+          <li>Rule out <em>Bacterial Blight (Pseudomonas syringae)</em> characterized by water-soaked black lesions.</li>
+          <li>Rule out <em>Powdery Mildew (Phyllactinia corylea)</em> with white powdery patches on lower leaf surface.</li>
+          <li>Submit leaf samples to the Central Sericultural Research & Training Institute (CSR&TI) extension centre.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
