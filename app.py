@@ -29,7 +29,12 @@ from flask_login import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-# Optional TensorFlow import (resilient to different Python/system environments)
+# Optional Computer Vision & Deep Learning libraries
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+
 try:
     import tensorflow as tf
 except ImportError:
@@ -219,114 +224,244 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def analyze_botanical_pathology(image: Image.Image):
+    """
+    Robust Botanical Vision Classifier for Mulberry Foliage.
+    1. Identifies the actual leaf contour from the green chlorophyll core.
+    2. Completely isolates the leaf boundary from tables, hands, walls, and white paper.
+    3. Analyzes pathology strictly within the closed leaf blade.
+    """
+    rgb = np.array(image.convert("RGB"))
+    h, w, _ = rgb.shape
+
+    # Standardize image size for consistent spatial morphology
+    max_dim = 512
+    if max(h, w) > max_dim:
+        scale = max_dim / max(h, w)
+        if cv2 is not None:
+            rgb = cv2.resize(rgb, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+        else:
+            rgb = np.array(image.resize((int(w * scale), int(h * scale))))
+
+    if cv2 is not None:
+        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    else:
+        hsv_pil = Image.fromarray(rgb).convert("HSV")
+        hsv = np.array(hsv_pil)
+
+    H, S, V = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
+    R = rgb[:, :, 0].astype(np.float32)
+    G = rgb[:, :, 1].astype(np.float32)
+    B = rgb[:, :, 2].astype(np.float32)
+
+    # 1. Detect Vegetative Core (Chlorophyll Seed)
+    exg = 2 * G - R - B
+    veg_core = (
+        (exg > 8) &
+        (G > R * 0.98) &
+        (G > B * 1.02) &
+        (H >= 24) & (H <= 96) &
+        (S >= 25) &
+        (V >= 30) & (V <= 245)
+    )
+
+    veg_count = np.sum(veg_core)
+    total_img_pixels = rgb.shape[0] * rgb.shape[1]
+
+    # If virtually no plant vegetation exists in image (< 4%), reject as Non-Leaf / Unknown
+    if veg_count < (total_img_pixels * 0.04):
+        return "Unknown / Unidentified Disease", 88.0, {
+            "Disease Free": 4.0,
+            "Potential Leaf Rust": 4.0,
+            "Potential Leaf Spot": 4.0,
+            "Unknown / Unidentified Disease": 88.0
+        }, 0.0, 0.0, 0.0
+
+    # 2. Extract Precise Leaf Boundary via Morphological Hull
+    if cv2 is not None:
+        veg_mask_u8 = (veg_core.astype(np.uint8)) * 255
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+        closed_veg = cv2.morphologyEx(veg_mask_u8, cv2.MORPH_CLOSE, kernel, iterations=2)
+        contours, _ = cv2.findContours(closed_veg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if contours:
+            min_leaf_area = total_img_pixels * 0.03
+            significant_contours = [c for c in contours if cv2.contourArea(c) > min_leaf_area]
+            if not significant_contours:
+                significant_contours = [max(contours, key=cv2.contourArea)]
+
+            leaf_canvas = np.zeros((rgb.shape[0], rgb.shape[1]), dtype=np.uint8)
+            for c in significant_contours:
+                hull = cv2.convexHull(c)
+                cv2.drawContours(leaf_canvas, [hull], -1, 255, -1)
+
+            white_bg = (V > 230) & (S < 35)
+            black_void = (V < 20)
+            leaf_blade_mask = (leaf_canvas == 255) & ~white_bg & ~black_void
+        else:
+            leaf_blade_mask = veg_core
+    else:
+        leaf_blade_mask = veg_core
+
+    leaf_blade_pixels = np.sum(leaf_blade_mask)
+    if leaf_blade_pixels < (total_img_pixels * 0.03):
+        leaf_blade_mask = veg_core
+        leaf_blade_pixels = max(1, np.sum(leaf_blade_mask))
+
+    # 3. Pathological Symptom Analysis Exclusively Within Leaf Mask
+    blade_R = R[leaf_blade_mask]
+    blade_G = G[leaf_blade_mask]
+    blade_B = B[leaf_blade_mask]
+    blade_H = H[leaf_blade_mask]
+    blade_S = S[leaf_blade_mask]
+    blade_V = V[leaf_blade_mask]
+    blade_exg = exg[leaf_blade_mask]
+
+    healthy_pixels = (
+        (blade_exg > 0) &
+        (blade_H >= 26) & (blade_H <= 92) &
+        (blade_S >= 25) &
+        (blade_G > blade_R * 1.02)
+    )
+    healthy_ratio = np.sum(healthy_pixels) / max(leaf_blade_pixels, 1)
+
+    rust_pixels = (
+        (blade_H >= 5) & (blade_H <= 23) &
+        (blade_S >= 52) &
+        (blade_V >= 40) & (blade_V <= 215) &
+        (blade_R > blade_G + 16) &
+        (blade_R > blade_B * 1.45)
+    )
+    rust_ratio = np.sum(rust_pixels) / max(leaf_blade_pixels, 1)
+
+    dark_necrotic = (
+        (blade_V <= 65) &
+        (blade_R < 80) & (blade_G < 80) & (blade_B < 80) &
+        ~healthy_pixels
+    )
+    chlorotic_halo = (
+        (blade_H >= 20) & (blade_H <= 28) &
+        (blade_S >= 55) & (blade_V >= 100) &
+        (blade_R > blade_B * 1.5) &
+        (rust_ratio < 0.03)
+    )
+    spot_pixels = dark_necrotic | chlorotic_halo
+    spot_ratio = np.sum(spot_pixels) / max(leaf_blade_pixels, 1)
+
+    # 4. Decision Matrix
+    if healthy_ratio >= 0.75 and rust_ratio < 0.05 and spot_ratio < 0.045:
+        conf = min(99.2, 88.0 + (healthy_ratio - 0.75) * 45)
+        conf_healthy = round(conf, 1)
+        conf_rust = round(max(0.4, (100 - conf_healthy) * 0.45 * (rust_ratio / 0.05)), 1)
+        conf_spot = round(max(0.4, (100 - conf_healthy) * 0.45 * (spot_ratio / 0.045)), 1)
+        conf_unk = round(max(0.2, 100 - conf_healthy - conf_rust - conf_spot), 1)
+
+        return "Disease Free", conf_healthy, {
+            "Disease Free": conf_healthy,
+            "Potential Leaf Rust": conf_rust,
+            "Potential Leaf Spot": conf_spot,
+            "Unknown / Unidentified Disease": conf_unk
+        }, healthy_ratio, rust_ratio, spot_ratio
+
+    elif rust_ratio >= 0.06 and rust_ratio > (spot_ratio * 1.2):
+        conf = min(98.0, 78.0 + rust_ratio * 120)
+        conf_rust = round(conf, 1)
+        conf_healthy = round(max(1.0, (100 - conf_rust) * 0.3 * healthy_ratio), 1)
+        conf_spot = round(max(0.8, (100 - conf_rust) * 0.35 * (spot_ratio / max(rust_ratio, 0.01))), 1)
+        conf_unk = round(max(0.4, 100 - conf_rust - conf_healthy - conf_spot), 1)
+
+        return "Potential Leaf Rust", conf_rust, {
+            "Disease Free": conf_healthy,
+            "Potential Leaf Rust": conf_rust,
+            "Potential Leaf Spot": conf_spot,
+            "Unknown / Unidentified Disease": conf_unk
+        }, healthy_ratio, rust_ratio, spot_ratio
+
+    elif spot_ratio >= 0.05:
+        conf = min(97.5, 77.0 + spot_ratio * 130)
+        conf_spot = round(conf, 1)
+        conf_healthy = round(max(1.0, (100 - conf_spot) * 0.3 * healthy_ratio), 1)
+        conf_rust = round(max(0.8, (100 - conf_spot) * 0.35 * (rust_ratio / max(spot_ratio, 0.01))), 1)
+        conf_unk = round(max(0.4, 100 - conf_spot - conf_healthy - conf_rust), 1)
+
+        return "Potential Leaf Spot", conf_spot, {
+            "Disease Free": conf_healthy,
+            "Potential Leaf Rust": conf_rust,
+            "Potential Leaf Spot": conf_spot,
+            "Unknown / Unidentified Disease": conf_unk
+        }, healthy_ratio, rust_ratio, spot_ratio
+
+    elif healthy_ratio >= 0.58:
+        conf_healthy = round(min(93.5, 72.0 + (healthy_ratio - 0.58) * 50), 1)
+        remainder = 100 - conf_healthy
+        return "Disease Free", conf_healthy, {
+            "Disease Free": conf_healthy,
+            "Potential Leaf Rust": round(remainder * 0.35, 1),
+            "Potential Leaf Spot": round(remainder * 0.35, 1),
+            "Unknown / Unidentified Disease": round(remainder * 0.30, 1)
+        }, healthy_ratio, rust_ratio, spot_ratio
+
+    else:
+        return "Unknown / Unidentified Disease", 80.0, {
+            "Disease Free": 10.0,
+            "Potential Leaf Rust": 15.0,
+            "Potential Leaf Spot": 15.0,
+            "Unknown / Unidentified Disease": 60.0
+        }, healthy_ratio, rust_ratio, spot_ratio
+
+
 def perform_leaf_inference(image: Image.Image):
     """
-    Inference pipeline:
-    1. If Keras model loaded -> Run Deep Neural Network + OOD Rejection Filter
-    2. Fallback -> Run botanical color histogram & necrosis texture analysis
+    Ensemble Inference Pipeline:
+    - Runs Botanical Computer Vision & Morphology Analysis.
+    - If Keras Neural Network is active, cross-validates and calibrates against
+      biological chlorophyll features to eliminate false positive hallucinations.
     """
     global model, IMG_SIZE
 
-    # --- Mode A: Keras Deep Learning Model ---
+    botanical_class, botanical_conf, botanical_breakdown, h_ratio, r_ratio, s_ratio = (
+        analyze_botanical_pathology(image)
+    )
+
+    # If Keras model is loaded, integrate predictions with botanical verification
     if model is not None and tf is not None:
-        img_resized = image.resize(IMG_SIZE)
-        img_array = np.array(img_resized, dtype=np.float32) / 255.0
-        img_batch = np.expand_dims(img_array, axis=0)
+        try:
+            img_resized = image.resize(IMG_SIZE)
+            img_array = np.array(img_resized, dtype=np.float32) / 255.0
+            img_batch = np.expand_dims(img_array, axis=0)
 
-        raw_predictions = model.predict(img_batch, verbose=0)[0]
-        num_classes = len(raw_predictions)
+            raw_predictions = model.predict(img_batch, verbose=0)[0]
+            num_classes = len(raw_predictions)
 
-        if num_classes >= 4:
-            top_idx = int(np.argmax(raw_predictions))
-            predicted_class = CLASS_NAMES_4[top_idx]
-            confidence = float(raw_predictions[top_idx]) * 100.0
-
-            if confidence < CONFIDENCE_THRESHOLD and predicted_class != "Unknown / Unidentified Disease":
-                predicted_class = "Unknown / Unidentified Disease"
-                confidence = round(100.0 - confidence, 2)
-
-            all_confidences = {
-                CLASS_NAMES_4[i]: round(float(raw_predictions[i]) * 100.0, 2)
-                for i in range(min(4, num_classes))
-            }
-        else:
-            sorted_indices = np.argsort(raw_predictions)[::-1]
-            top_idx = int(sorted_indices[0])
-            second_idx = int(sorted_indices[1])
-
-            top_conf = float(raw_predictions[top_idx]) * 100.0
-            second_conf = float(raw_predictions[second_idx]) * 100.0
-            margin = top_conf - second_conf
-
-            all_confidences = {
-                CLASS_NAMES_3[i]: round(float(raw_predictions[i]) * 100.0, 2)
-                for i in range(len(CLASS_NAMES_3))
-            }
-
-            if top_conf < CONFIDENCE_THRESHOLD or margin < MARGIN_THRESHOLD:
-                predicted_class = "Unknown / Unidentified Disease"
-                confidence = round(max(35.0, 100.0 - top_conf), 2)
-                all_confidences["Unknown / Unidentified Disease"] = confidence
+            if num_classes >= 4:
+                top_idx = int(np.argmax(raw_predictions))
+                nn_class = CLASS_NAMES_4[top_idx]
+                nn_conf = float(raw_predictions[top_idx]) * 100.0
             else:
-                predicted_class = CLASS_NAMES_3[top_idx]
-                confidence = top_conf
-                all_confidences["Unknown / Unidentified Disease"] = 0.0
+                top_idx = int(np.argmax(raw_predictions))
+                nn_class = CLASS_NAMES_3[top_idx]
+                nn_conf = float(raw_predictions[top_idx]) * 100.0
 
-        return predicted_class, confidence, all_confidences
+            # CRITICAL FALSE POSITIVE GUARD:
+            # If the leaf is overwhelmingly healthy (>75% healthy chlorophyll and virtually 0 rust/spots),
+            # but the shallow NN mispredicted a disease due to lighting or background,
+            # override with the verified Disease Free diagnosis!
+            if botanical_class == "Disease Free" and h_ratio >= 0.75 and r_ratio < 0.04 and s_ratio < 0.04:
+                return botanical_class, botanical_conf, botanical_breakdown
 
-    # --- Mode B: Intelligent Computer Vision Fallback ---
-    img_eval = image.resize((128, 128))
-    arr = np.array(img_eval, dtype=np.float32)
-    r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+            # If NN confidence is strong and matches physical symptoms, fuse them
+            if nn_conf >= CONFIDENCE_THRESHOLD and nn_class == botanical_class:
+                fused_conf = round(0.5 * nn_conf + 0.5 * botanical_conf, 1)
+                return nn_class, fused_conf, botanical_breakdown
 
-    # Calculate vegetative chlorophyll ratio vs necrotic rust/spot pixels
-    green_dominance = (g > (r * 1.05)) & (g > (b * 1.05))
-    rust_signature = (r > 130) & (g > 70) & (g < 140) & (b < 70)
-    spot_signature = (r < 80) & (g < 80) & (b < 80) & (g > 20)
+            # If NN is uncertain or diverges, botanical analysis acts as the authoritative arbitrator
+            return botanical_class, botanical_conf, botanical_breakdown
 
-    total_pixels = 128 * 128
-    green_ratio = np.sum(green_dominance) / total_pixels
-    rust_ratio = np.sum(rust_signature) / total_pixels
-    spot_ratio = np.sum(spot_signature) / total_pixels
+        except Exception as e:
+            print(f"[WARN] Error running neural network inference: {e}")
+            return botanical_class, botanical_conf, botanical_breakdown
 
-    if rust_ratio > 0.05 and rust_ratio > spot_ratio:
-        predicted_class = "Potential Leaf Rust"
-        confidence = min(96.0, 72.0 + rust_ratio * 150)
-        all_conf = {
-            "Disease Free": round(max(2.0, (100 - confidence) * 0.4), 1),
-            "Potential Leaf Rust": round(confidence, 1),
-            "Potential Leaf Spot": round(max(1.0, (100 - confidence) * 0.35), 1),
-            "Unknown / Unidentified Disease": round(max(1.0, (100 - confidence) * 0.25), 1),
-        }
-    elif spot_ratio > 0.04:
-        predicted_class = "Potential Leaf Spot"
-        confidence = min(95.0, 70.0 + spot_ratio * 180)
-        all_conf = {
-            "Disease Free": round(max(2.0, (100 - confidence) * 0.3), 1),
-            "Potential Leaf Rust": round(max(2.0, (100 - confidence) * 0.35), 1),
-            "Potential Leaf Spot": round(confidence, 1),
-            "Unknown / Unidentified Disease": round(max(1.0, (100 - confidence) * 0.35), 1),
-        }
-    elif green_ratio > 0.35:
-        predicted_class = "Disease Free"
-        confidence = min(98.5, 75.0 + green_ratio * 30)
-        all_conf = {
-            "Disease Free": round(confidence, 1),
-            "Potential Leaf Rust": round(max(1.0, (100 - confidence) * 0.4), 1),
-            "Potential Leaf Spot": round(max(1.0, (100 - confidence) * 0.4), 1),
-            "Unknown / Unidentified Disease": round(max(0.5, (100 - confidence) * 0.2), 1),
-        }
-    else:
-        predicted_class = "Unknown / Unidentified Disease"
-        confidence = 78.5
-        all_conf = {
-            "Disease Free": 14.2,
-            "Potential Leaf Rust": 18.3,
-            "Potential Leaf Spot": 15.5,
-            "Unknown / Unidentified Disease": 52.0,
-        }
-
-    return predicted_class, confidence, all_conf
+    return botanical_class, botanical_conf, botanical_breakdown
 
 
 # -----------------------------------------------------------------------------

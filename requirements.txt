@@ -1,9 +1,10 @@
 flask
 flask-sqlalchemy
 flask-login
-tensorflow-cpu
 pillow
 numpy
+opencv-python-headless
 gunicorn
 streamlit
+tensorflow-cpu
 scikit-learn
