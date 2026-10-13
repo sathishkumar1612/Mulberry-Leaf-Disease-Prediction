@@ -38,7 +38,7 @@ EXPOSE 5000
 
 # 8. Healthcheck to monitor container availability
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:5000/login || exit 1
+    CMD curl -f http://localhost:${PORT:-5000}/health || exit 1
 
-# 9. Production execution with Gunicorn WSGI server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "2", "--timeout", "120", "app:app"]
+# 9. Production execution with Gunicorn WSGI server (dynamic PORT for Render, single worker + threads for 512MB RAM safety)
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 1 --threads 4 --timeout 120 app:app"]

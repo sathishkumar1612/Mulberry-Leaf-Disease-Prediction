@@ -477,6 +477,18 @@ def perform_leaf_inference(image: Image.Image):
 
 
 # -----------------------------------------------------------------------------
+# System & Healthcheck Routes
+# -----------------------------------------------------------------------------
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "healthy",
+        "service": "MORUS-LENS",
+        "timestamp": datetime.utcnow().isoformat()
+    }), 200
+
+
+# -----------------------------------------------------------------------------
 # Authentication Routes
 # -----------------------------------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
